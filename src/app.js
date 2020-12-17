@@ -12,7 +12,41 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 // your code goes here
+app.get('/mario', (req,res) => {
+    marioModel.find()
+    .then((data)=> res.json(data));
+})
+app.get('/mario/:id', (req, res) => {
+    const id = req.params.id;
+    Subscriber.find({_id : id}).then(subscribers => subscribers.map(subscribers => res.send(subscribers))).catch(error => res.status(400).send({message: error.message}));
+    return;
+});
+app.post("/mario", (req, res) => {
+    let newMario = new marioModel({
+        name : req.body.name,
+        weight: req.body.weight
+    })
+    newMario.save()
+    .then((data)=>{
+        res.status(201).json(data);
+    })
+    .catch((error)=>{
+        res.status(400).json({"message": 'either name or weight is missing'});
+    })
+});
 
+app.patch("/mario/:id", (req, res) => {
+    marioModel.findByIdAndUpdate(req.params.id, req.body, {new:true})
+    .then(data => res.status(200).json(data))
+    .catch(err => res.status(400).json({"message" : err.message}))
+})
 
+app.delete("/mario/:id", (req, res) => {
+    marioModel.deleteOne({_id: req.params.id})
+    .then(data => {
+        return res.status(200).send({"message":"character deleted"})
+    })
+    .catch(err => res.status(400).json({"message":err.message}))
+})
 
 module.exports = app;
