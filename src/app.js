@@ -12,15 +12,23 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 // your code goes here
-app.get('/mario', (req,res) => {
+app.get("/mario", (req, res) => {
     marioModel.find()
-    .then((data)=> res.json(data));
-})
-app.get('/mario/:id', (req, res) => {
-    const id = req.params.id;
-    Subscriber.find({_id : id}).then(subscribers => subscribers.map(subscribers => res.send(subscribers))).catch(error => res.status(400).send({message: error.message}));
-    return;
+    .then((data)=> res.json(data))
+    .catch((error)=>{
+        res.status(400).json({"message": error.message});
+    })
 });
+
+app.get("/mario/:id", (req, res) => {
+    marioModel.findById(req.params.id)
+    .then((data) => {
+        res.json(data);
+    })
+    .catch((error)=>{
+        res.status(400).json({"message": error.message});
+    })});
+
 app.post("/mario", (req, res) => {
     let newMario = new marioModel({
         name : req.body.name,
